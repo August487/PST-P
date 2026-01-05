@@ -8,7 +8,7 @@ const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://p-pst1-default-rtdb.firebaseio.com/"
+  databaseURL: "https://p-pst1-default-rtdb.firebaseio.com" 
 });
 
 const db = admin.database();
@@ -40,4 +40,5 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Servidor funcionando en puerto ${PORT}`);
 });
+
 
