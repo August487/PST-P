@@ -1,21 +1,17 @@
 {
   "name": "pst-p",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Monitor de tanque de agua",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-  "express": "^4.18.2",
-  "firebase-admin": "^11.5.0",
-  "ejs": "^3.1.9"
-}
-    "ejs": "^3.1.10",
-    "express": "^5.2.1",
-    "firebase-admin": "^13.6.0"
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "firebase-admin": "^11.5.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
