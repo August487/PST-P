@@ -1,14 +1,9 @@
-const express = require('express');
-const admin = require('firebase-admin');
 const path = require('path');
-const app = express();
-
-// Configuración de Firebase
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://p-pst1-default-rtdb.firebaseio.com" 
+  databaseURL: "https://p-pst1-default-rtdb.firebaseio.com" // SIN la barra "/" al final
 });
 
 const db = admin.database();
@@ -40,5 +35,6 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Servidor funcionando en puerto ${PORT}`);
 });
+
 
 
