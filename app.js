@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 const path = require('path');
 const app = express();
 
-// Render leerá la llave desde sus variables de entorno
+// Conexión automática usando la variable de Render
 admin.initializeApp({
   credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_KEYS)),
   databaseURL: "https://p-pst1-default-rtdb.firebaseio.com"
@@ -20,11 +20,11 @@ app.get('/', async (req, res) => {
     const datos = snap.val() || { litros: 0 };
     res.render('index', { datos, lista: [] });
   } catch (e) {
-    res.status(500).send("Error de conexión");
+    res.status(500).send("Error de base de datos");
   }
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ ¡LISTO! Servidor en puerto ${PORT}`);
+  console.log(`✅ ¡SOLUCIONADO! Servidor en puerto ${PORT}`);
 });
