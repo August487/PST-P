@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 const path = require('path');
 const app = express();
 
-// Esto lee la llave directamente desde Render sin errores de formato
+// Render leerá la llave desde sus variables de entorno
 admin.initializeApp({
   credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_KEYS)),
   databaseURL: "https://p-pst1-default-rtdb.firebaseio.com"
@@ -20,7 +20,7 @@ app.get('/', async (req, res) => {
     const datos = snap.val() || { litros: 0 };
     res.render('index', { datos, lista: [] });
   } catch (e) {
-    res.status(500).send("Error de Firebase");
+    res.status(500).send("Error de conexión");
   }
 });
 
