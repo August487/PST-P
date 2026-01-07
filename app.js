@@ -36,9 +36,16 @@ app.get('/', async (req, res) => {
   try {
     const snap = await db.ref('tanque').once('value');
     const datos = snap.val() || { litros: 0 };
-    res.render('index', { datos, lista: [] });
+    
+    // Aquí está el truco: definimos 'historial' como una lista vacía para que no de error
+    res.render('index', { 
+        datos: datos, 
+        historial: [] 
+    });
+    
   } catch (e) {
-    res.status(500).send("Error de Firebase: " + e.message);
+    console.error(e);
+    res.status(500).send("Error de base de datos");
   }
 });
 
@@ -46,3 +53,4 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Servidor en puerto ${PORT} listo para probar`);
 });
+
