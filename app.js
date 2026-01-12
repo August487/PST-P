@@ -31,26 +31,26 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.get('/', async (req, res) => {
   try {
-    // 1. Obtener datos del tanque (722.5 ml según tu captura)
+    // 1. Obtener datos del tanque (Mostrará 722.5 ml y la fecha de tu imagen)
     const tanqueSnap = await db.ref('tanque').once('value');
     const datosTanque = tanqueSnap.val() || { litros: 0, ultima_actualizacion: "N/A" };
 
-    // 2. Obtener historial (Nodos A, lectura0, lectura1...)
+    // 2. Obtener historial (Lectura0, Lectura1, etc.)
     const histSnap = await db.ref('historial').once('value');
     const histData = histSnap.val() || {};
     
-    // Procesamos el historial extrayendo 'fecha' y 'litros' de cada nodo
+    // Procesamos el historial asegurando que 'fecha' y 'litros' se lean correctamente
     const historial = Object.keys(histData).map(key => ({
       fecha: histData[key].fecha || "Sin fecha",
       valor: histData[key].litros || 0
-    })).reverse(); // El más reciente arriba
+    })).reverse(); // Los más recientes arriba
 
-    // 3. Cálculos para la interfaz (722.5 ml es el 100%)
+    // 3. Cálculos de Interfaz
     const capacidadMax = 722.5;
     const porcentaje = Math.min((datosTanque.litros / capacidadMax) * 100, 100);
     
-    // Es suficiente si el tanque está lleno o cerca del máximo
-    const ok = datosTanque.litros >= 200; 
+    // Umbral: Es SUFICIENTE si tiene más de 400ml (ajustable)
+    const ok = datosTanque.litros > 400; 
 
     res.render('index', { 
       datos: datosTanque, 
