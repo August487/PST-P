@@ -3,16 +3,15 @@ const admin = require('firebase-admin');
 const path = require('path');
 const app = express();
 
-// Configuración de Firebase para Render
 const getFirebaseConfig = () => {
   try {
     const rawKeys = process.env.FIREBASE_KEYS;
-    if (!rawKeys) throw new Error("No se encontró FIREBASE_KEYS");
+    if (!rawKeys) throw new Error("No se encontró FIREBASE_KEYS en Render");
     const config = JSON.parse(rawKeys);
     config.private_key = config.private_key.replace(/\\n/g, '\n');
     return config;
   } catch (error) {
-    console.error("❌ Error en Config:", error.message);
+    console.error("❌ Error en Firebase Config:", error.message);
     return null;
   }
 };
@@ -31,26 +30,39 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.get('/', async (req, res) => {
   try {
-    // 1. Obtener datos del tanque (Mostrará 722.5 ml y la fecha de tu imagen)
+    // 1. Obtener datos del TANQUE (722.5 ml)
     const tanqueSnap = await db.ref('tanque').once('value');
-    const datosTanque = tanqueSnap.val() || { litros: 0, ultima_actualizacion: "N/A" };
+    const tData = tanqueSnap.val() || {};
+    
+    // Buscamos litros y ultima_actualizacion
+    const datosTanque = {
+      litros: tData.litros || 0,
+      actualizacion: tData.ultima_actualizacion || "Desconocida"
+    };
 
-    // 2. Obtener historial (Lectura0, Lectura1, etc.)
+    // 2. Obtener HISTORIAL
     const histSnap = await db.ref('historial').once('value');
     const histData = histSnap.val() || {};
     
-    // Procesamos el historial asegurando que 'fecha' y 'litros' se lean correctamente
-    const historial = Object.keys(histData).map(key => ({
-      fecha: histData[key].fecha || "Sin fecha",
-      valor: histData[key].litros || 0
-    })).reverse(); // Los más recientes arriba
+    // Lógica para limpiar los campos con "::" o nombres variados
+    const historial = Object.keys(histData).map(key => {
+      const nodo = histData[key];
+      // Busca 'fecha' o 'fecha::'
+      const fechaFinal = nodo.fecha || nodo['fecha::'] || "No registrada";
+      // Busca 'litros' o 'litros::'
+      const litrosFinal = nodo.litros !== undefined ? nodo.litros : (nodo['litros::'] || 0);
+      
+      return {
+        fecha: fechaFinal.replace(/"/g, ''), // Quita comillas extra si existen
+        valor: litrosFinal
+      };
+    }).reverse();
 
-    // 3. Cálculos de Interfaz
+    // 3. Cálculos para 722.5 ml
     const capacidadMax = 722.5;
     const porcentaje = Math.min((datosTanque.litros / capacidadMax) * 100, 100);
-    
-    // Umbral: Es SUFICIENTE si tiene más de 400ml (ajustable)
-    const ok = datosTanque.litros > 400; 
+    // Marcamos como suficiente si supera los 500ml
+    const ok = datosTanque.litros > 500;
 
     res.render('index', { 
       datos: datosTanque, 
@@ -60,12 +72,12 @@ app.get('/', async (req, res) => {
     });
     
   } catch (e) {
-    console.error("❌ Error:", e);
+    console.error("❌ Error en ruta /:", e);
     res.status(500).send("Error de base de datos");
   }
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Servidor en puerto ${PORT}`);
+  console.log(`✅ Servidor en línea en puerto ${PORT}`);
 });
