@@ -2,28 +2,29 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Monitor de Agua</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Agua - 722.5ml</title>
     <style>
-        /* CSS LIMPIO PARA EVITAR ERRORES EN VS CODE */
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .main-layout { display: grid; grid-template-columns: 180px 1fr 280px; gap: 20px; max-width: 1100px; width: 100%; }
         .section { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
         
-        /* Tanque */
+        /* Tanque Visual */
         .tank-border { width: 80px; height: 200px; border: 4px solid #37474f; border-radius: 5px 5px 15px 15px; position: relative; margin: 20px auto; background: #eee; overflow: hidden; }
         .water { position: absolute; bottom: 0; width: 100%; transition: height 1s ease; }
 
-        /* Colores */
+        /* Colores de Estado */
         .verde { background-color: #2e7d32 !important; }
         .rojo { background-color: #c62828 !important; }
-        .status-header { color: white; padding: 30px; border-radius: 15px; }
+        .status-header { color: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; }
 
-        /* Semáforo */
-        .luz { display: flex; align-items: center; gap: 10px; padding: 15px; border-radius: 10px; border: 2px solid #eee; font-weight: bold; margin-top: 10px; text-align: left; }
-        .activa-v { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
-        .activa-r { border-color: #c62828; background: #ffebee; color: #c62828; }
-        .circulo { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+        /* Semáforo lateral */
+        .luz { display: flex; align-items: center; gap: 10px; padding: 15px; border-radius: 10px; border: 2px solid #eee; font-weight: bold; margin-top: 10px; text-align: left; opacity: 0.2; }
+        .activa-v { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; opacity: 1; }
+        .activa-r { border-color: #c62828; background: #ffebee; color: #c62828; opacity: 1; }
+        .circulo { width: 22px; height: 22px; border-radius: 50%; }
 
+        /* Tabla de historial */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; font-size: 0.9rem; }
     </style>
@@ -31,41 +32,34 @@
 </head>
 <body>
 
-    <% 
-        // Lógica de datos
-        const litros = (typeof data !== 'undefined' && data.litros) ? data.litros : 0;
-        const ok = litros >= 400;
-        const pct = Math.min((litros / 400) * 100, 100);
-        const claseC = ok ? 'verde' : 'rojo';
-    %>
-
     <div class="main-layout">
         <div class="section">
             <h4>NIVEL</h4>
             <div class="tank-border">
-                <div id="visual-water" class="water <%= claseC %>" data-h="<%= pct %>"></div>
+                <div class="water <%= ok ? 'verde' : 'rojo' %>" style="height: <%= porcentaje %>%;"></div>
             </div>
-            <strong><%= Math.round(pct) %>%</strong>
+            <strong><%= Math.round(porcentaje) %>%</strong>
         </div>
 
         <div class="section">
-            <div class="status-header <%= claseC %>">
-                <span style="font-size: 4rem; font-weight: bold; display: block;"><%= litros %>L</span>
+            <div class="status-header <%= ok ? 'verde' : 'rojo' %>">
+                <span style="font-size: 4rem; font-weight: bold; display: block;"><%= datos.litros %> ml</span>
                 <h2><%= ok ? 'SUFICIENTE' : 'INSUFICIENTE' %></h2>
             </div>
-            <h3>Historial</h3>
+            
+            <h3>Historial de Lecturas</h3>
             <table>
-                <% historial.slice(0,5).forEach(function(item) { %>
+                <% historial.forEach(function(item) { %>
                     <tr>
-                        <td><%= item.fecha %></td>
-                        <td style="text-align: right;"><strong><%= item.litros %> L</strong></td>
+                        <td><%= item.nombre %></td>
+                        <td style="text-align: right;"><strong><%= item.valor %> ml</strong></td>
                     </tr>
                 <% }); %>
             </table>
         </div>
 
         <div class="section">
-            <h4>REFERENCIA (400L)</h4>
+            <h4>REFERENCIA (722.5 ml)</h4>
             <div class="luz <%= ok ? 'activa-v' : '' %>">
                 <div class="circulo" style="background: #2e7d32;"></div>
                 <span>SUFICIENTE</span>
@@ -76,12 +70,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Aplicamos la altura mediante JS para que VS Code no marque error en el HTML
-        const w = document.getElementById('visual-water');
-        if(w) w.style.height = w.getAttribute('data-h') + '%';
-    </script>
 
 </body>
 </html>
